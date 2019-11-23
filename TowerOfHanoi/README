@@ -1,0 +1,232 @@
+LUPU ANDREEA - 311CB - TEMA 2 - STRUCTURI DE DATE
+PUNCTAJ OBTINUT : 105
+
+Detalii despre implementarea temei: 
+
+STRUCTURILE FOLOSITE:
+ - structura unei celule (struct celulag)corespunzatoare unei liste generice 
+simplu inlantuite (contine un camp void* pentru pastrarea informatiei 
+corespunzatoare acelei celule si un camp struct celulag* pentru a face legatura
+cu celula urmatoare din lista)
+ - structura unei stive in care pastrez dimensiunea elementelor continute de
+stiva si adresa inceputului listei in care pastrez elementele stivei (varful)
+ - structura unei cozi in care pastrez dimensiunea elementelor continute de
+coada si adresele pentru prima si ultima celula din lista in care se pastreaza
+elementele cozii
+ - structura unui sistem Hanoi care contine un char * pentru culoarea discurilor
+ce compun acel sistem Hanoi, 3 elemente void* ce reprezinta cele 3 stive(A, B, C)
+si inca un element void* ce reprezinta coada in care se pastreaza mutarile
+necesare rezolvarii sistemului Hanoi
+
+MAIN:
+ - citesc in variabila de tip int N numarul de operatiuni din primul fisier primit 
+ca argument in linia de comanda si in apelez functia corespunzatoare fiecareia 
+(Add, Play, Show, Show_moves)
+ - eliberez memoria alocata pentru crearea listei in care am pastrat toate sistemele
+Hanoi de diferite culori (lista generica simplu inlantuita)
+
+FUNCTIILE APELATE:
+1. Add
+	- aloca memorie pentru diametrul noului disc pe care vrem sa il introducem 
+in sistem
+	- cauta sistemul Hanoi de culoarea discului pe care vrem sa il introducem
+prin apelarea functiei CautareSistemHanoi
+	1.1 -> functia CautareSistemHanoi
+		- intoarce adreasa sistemului Hanoi cautat
+		- pentru fiecare sistem Hanoi din lista sistemelor Hanoi compara culoarea
+		sa cu cea cautata, iar atunci cand gaseste sistemul cautat returneaza
+		adresa lui
+	- daca nu gaseste un sistem Hanoi care sa aiba aceeasi culoare a discurilor
+ca a discului pe care vrem sa il inseram, atunci initializam un nou sistem
+Hanoi de culoarea dorita pe care il adaugam la lista sistemelor Hanoi si punem
+noul disc in stiva A a sistemului nou construit, folosind functia InitSistHanoi
+	1.2 -> functia InitSistHanoi
+		- initializare sistem Hanoi de o anumita culoare
+		- aloca spatiu pentru un element de tip TSistemHanoi*
+		- face alocare si seteaza valoare pentru campul culoare cu functia strdup
+		- initializeaza cele 3 stive A, B si C cu functia InitS
+		- initializeaza coada mutarilor c functia InitQ
+		- adauga noul sistem Hanoi in lista sistemelor Hanoi cu functia
+		AdaugareCelulaInceput
+		- adauga apoi primului disc in stiva A a noului sistem Hanoi construit
+	- daca a fost gasit un sistem Hanoi ce are culoarea discurilor aceeasi cu
+cea a discului pe care vrem sa il inseram, atunci :
+	a. daca discul pe care vrem sa il inseram are un diametru mai mic decat
+	discul aflat in varful stivei A al sistemului gasit il punem in varf
+	prin apelarea functiei AdaugareCelulaInceput
+		1.3 -> functia AdaugareCelulaInceput
+			- aloca spatiu pentru o celula
+			- daca lista in care se doreste sa se faca alocarea este vida,
+			se seteaza ca adresa de inceput adresa celulei alocate
+			- daca lista in care se doreste sa se faca alocarea nu este vida,
+			se seteaza ca celula urmatoare celulei alocate celula care se afla la
+			inceputul listei, dupa care se seteaza ca adresa de inceput adresa 
+			celulei alocate
+	b. daca discul pe care vrem sa il inseram nu are un diametru mai mic decat
+	discul aflat in varful stivei A, nu il putem pune in varf, asa ca trebuie sa 
+	ii gasim locul potrivit in stiva A in care il putem insera : folosim o stiva
+	auxiliara pe care o initializam folosind functia InitS
+		1.4 -> functia InitS
+			- aloca spatiu pentru un element de tip TStiva*
+			- seteaza dimensiunea elementului si initializeaza varful stivei cu NULL
+	extragem fiecare element din stiva A si verificam daca diametrul(informatia
+	din celula) e mai mic decat diametrul discului pe care vrem sa il inseram
+	pana cand gasim un disc cu un diametru mai mare, mutand discurile cu diametru
+	mai mi in stiva auxiliara cu functia MutaS
+		1.5 -> functia MutaS
+			- muta un element din varful stivei sursa in varful stivei destinatie
+			- se extrage elementul din varful stivei sursa si se seteaza varful
+			la adresa urmatorului element
+			- se pune apoi elementul extras in varful stivei destinatie
+			- daca stiva destinatie e vida se seteaza varful ei la adresa elementului
+			extras si se seteaza NULL pentru adresa urmatoare elementului
+			- daca stiva destinatie nu e vida, se seteaza varful ei ca adresa 
+			urmatoare elementului extras, dupa care varful ei se actualizeaza
+			cu adresa elementului extras
+	cand gasim locul potrivit de inserare adaugam discul in stiva folosind functia
+	AdaugareCelulaInceput
+	la final punem inapoi(rasturnam) in stiva initiala toate elementele mutate 
+	in stiva auxiliara folosind functia RastoarnaS si eliberam memoria alocata
+	pentru stiva auxiliara cu functia DistrugeS
+		1.6 -> functia RastoarnaS
+			- suprapune inversul stivei sursa peste stiva destinatie
+			- cat timp stiva sursa nu e vida, extrage cate un element si il muta
+			in stiva destinatie cu functia MutaS
+		1.7 -> functia DistrugeS
+			-elibereaza memoria alocata pentru o stiva
+			- apeleaza functia DistrugeLista cu parametru functia EliberareDiametru
+			pentru eliberarea listei de elemente corespunzatoare stivei, respectiv
+			pentru eliberarea spatiului alocat pentru informatia din celula listei
+			corespunzatoare stivei(eliberare un element de tip int*)
+2. Play
+ - cautam sistemul Hanoi in cadrul caruia trebuie sa executam un anumit numar
+de mutari din lista mutarilor ce trebuie executate pentru rezolvarea sistemului
+folosind functia CautareSistemHanoi
+ - verificam daca a fost deja construita coada in care se pastreaza mutarile
+necesare rezolvarii sistemului Hanoi(verificam daca inceputul cozii mutarilor
+este NULL si daca varful stivei C este NULL => coada nu a fost construita)
+ - in cazul in care coada nu a fost construita calculam numarul elementelor din 
+stiva A cu functia NrElemS pentru a-l da ca parametru functiei RezolvareHanoi
+care pune in stiva mutarilor toti pasii necesari rezolvarii unui sitem Hanoi
+	2.1 -> functia NrElemS
+			- intoarce numarul de elemente dintr-o stiva
+			- verifica mai intai daca acea stiva nu este vida
+			- daca nu este vida foloseste o stiva auxiliara intializata cu 
+			functia Inits
+			- rastoarna apoi toate elementele din stiva initiala in cea auxiliara
+			cu functia RastoarnaS
+			- cat timp mai sunt elemente in stiva auxiliara, extrag cate unul, il 
+			numar si il pun inapoi in stiva initiala cu functia MutaS
+			- eliberez apoi memoria alocata pentru stiva auxiliara cu functia
+			DistrugeS
+	2.2 -> functia RezolvareHanoi
+			- rezolva prin recursivitate problema turnurilor Hanoi si foloseste
+			functia PasiRezolvare pentru a pune in coada mutarilor toti pasii
+			necesari rezolvarii
+			2.2.1 -> functia PasiRezolvare
+					- adauga pasii necesari rezolvarii unui sistem Hanoi in coada 
+				in care se pastreaza toate mutarile care trebuie facute folosind
+				functia AdaugareCelulaCoada
+				2.2.1.1 -> functia AdaugareCelulaCoada
+					- aloca spatiu pentru o celula
+					- verifica daca coada in care trebuie pusa celula este vida
+					- daca e vida se seteaza inceputul si sfarsitul cozii la 
+					aceeasi adresa ai noii celule
+					- altfel celula se leaga la sfarsitul cozii si sfarstul cozii
+					e setat la adresa noii celule
+ - se calculeaza numarul elementelor din coada mutarilor = numarul de pasi
+necesari rezolvarii sistemului cu functia NrElemQ
+	2.3 -> functia NrElemQ
+			- intoarce numarul de elemente dintr-o coada
+			- verifica mai intai daca acea coada nu este vida
+			- daca nu este vida verifica daca adresa inceputului cozii este
+			identica cu adresa sfarsitului, caz in care coada contine un singur
+			element
+			- altfel foloseste o coada auxiliara intiializata cu functia InitQ
+			2.3.1 -> functia InitQ
+					- aloca spatiu pentru un element de tip Tcoada*
+					- seteaza dimensiunea elementului si initializeaza inceputul
+					si sfarsitul cozii cu NULL
+			- suprapune apoi toate elementele din coada initiala in cea auxiliara
+			cu functia SuprapuneQ
+			2.3.2 -> functia SuprapuneQ
+					- cat timp inceputul cozii este diferit de NULL, muta cate un
+				element de la coada sursa la coada destinatie cu functia MutaQ
+			- cat timp mai sunt elemente in coada auxiliara, extrag cate unul, il 
+			numar si il pun inapoi in coada initiala cu functia MutaQ
+			2.3.3 -> functia MutaQ
+					- extrage un element de la inceputul cozii sursa
+					- reseteaza inceputul cozii sursa la urmatorul element din coada
+					- pune elementul extras la sfarsitul cozii destinatie si 
+					seteaza sfarsitul acesteea la adresa elementului, daca coada
+					destinatie nu e vida
+					- daca este vida seteaza si inceputul si sfarsitul ei la adresa
+					elementului
+					- daca in urma extragerii in coada sursa nu mai raman elemente
+					sfarsitul acesteea e setat la NULL
+			- eliberez apoi memoria alocata pentru coada auxiliara cu functia
+			DistrugeQ
+			2.3.4 -> functia DistrugeQ
+					- elibereaza memoria alocata pentru un element de tip coada
+					- apeleaza functia DistrugeLista, dand ca parametru functia 
+					EliberareMutare
+				2.3.4.1 -> functia DistrugeLista
+					- elibereaza memoria alocata pentru fiecare celula din lista
+- verificam cate mutari putem executa in cadrul sistemului prin compararea
+numarului dorit de mutari  cu numarul tuturor pasilor necesari finalizarii
+ - efectuam apoi numarul de mutari cerut:
+	aflam stiva din care trebuie sa mutam si stiva in care trebuie sa mutam 
+	discul conform mutarii curente sugerate in coada
+	extragem cate o celula din coada mutarilor si o eliminam pe masura ce
+	efectuam modificarile cerute de informatia pe care o contine, folosind
+	functia EliminareMutare pentru eliberarea memoriei alocate pentru informatia
+	celulei
+		2.4 -> functia EliminareMutare
+				- elibereaza spatiul alocat pentru un element de tipul char*
+	se muta apoi discul conform mutarii sugerate in coada folosind functia MutaS
+
+3.Show
+ - se cauta sistemul pentru care se doreste afisarea elementelor continute de 
+cele 3 stive A,B,C folosind functia CautareSistemHanoi
+ - daca se gaseste se apeleaza functia AfisareStiva pentru fiecare stiva a 
+sistemului
+	3.1 -> functia AfisareStiva
+			- afiseaza elementele dintr-o stiva incepand cu elementul aflat la
+		baza stivei respective
+			- verifica daca stiva din care trebuie sa afiseze nu este vida
+			- daca nu e vida, atunci se utilizeaza o stiva auxiliara initializata
+		cu functia InitS si se rastoarna in ea cu functia RastoarnaS toate 
+		elementele din stiva pe care vrem sa o afisam
+			- cat timp stiva auxiliara are elemente se extrage cate unul, se 
+		afiseaza in fisierul de iesire si se muta inapoi in stiva initiala cu
+		functia MutaS
+			- la final de elibereaza memoria alocata pentru stiva auxiliara cu
+ajutorul functiei DistrugeS	
+
+4.Show_moves
+ - arata urmatoarele [nr_mutari] mutari ce trebuie efectuate in vederea
+rezolvarii sistemului Hanoi
+ - cautam sistemul Hanoi in cadrul caruia trebuie sa executam un anumit numar
+de mutari din lista mutarilor ce trebuie executate pentru rezolvarea sistemului
+folosind functia CautareSistemHanoi
+ - verificam daca a fost deja construita coada in care se pastreaza mutarile
+necesare rezolvarii sistemului Hanoi(verificam daca inceputul cozii mutarilor
+este NULL si daca varful stivei C este NULL => coada nu a fost construita)
+ - in cazul in care coada nu a fost construita calculam numarul elementelor din 
+stiva A cu functia NrElemS pentru a-l da ca parametru functiei RezolvareHanoi
+care pune in stiva mutarilor toti pasii necesari rezolvarii unui sitem Hanoi
+ - se calculeaza numarul elementelor din coada mutarilor = numarul de pasi
+necesari rezolvarii sistemului cu functia NrElemQ
+ - verificam cate mutari putem executa in cadrul sistemului prin compararea
+numarului dorit de mutari de afisat cu numarul tuturor pasilor necesari finalizarii  	
+ - verificam daca avem mutari de afisat
+ - daca exista se construieste o coada auxiliara cu functia InitQ
+ - se ia cate un element din coada mutarilor si se afiseaza, dupa care se muta
+in coada auxiliara cu functia MutaQ
+ - daca dupa afisarea numarului dorit de mutari, in coada mutarilor mai raman
+alte elemente, atunci le mutam si pe acestea in coada auxiliara cu functia
+SuprapuneQ
+ - la final mutam toate elementele din coada auxiliara in coada initiala
+cu functia SuprapuneQ
+ - eliberam apoi memoria alocata pentru coada auxiliara folosind functia
+DistrugeQ
